@@ -5,6 +5,7 @@ import './style.css'
 class TodoList extends Component {
   constructor (props) {
     super(props)
+    // 当组件的state或者props发生改变的的时候，render函数就是重新执行
     this.state = {
       inputValue: '',
       list: []
@@ -44,7 +45,7 @@ class TodoList extends Component {
     return this.state.list.map((item, index) => {
       return (
         <TodoItem
-          key={index}
+          key={item}
           content={item}
           index={index}
           deleteItem={this.handleItemDelete}
