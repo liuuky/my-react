@@ -1,102 +1,60 @@
-import React, { Component, Fragment } from 'react'
-import TodoItem from './TodoItem'
-import './style.css'
+import React, { Component } from 'react'
+import 'antd/dist/antd.css'
+import { Input, Button, List } from 'antd'
+import store from './store'
 
 class TodoList extends Component {
   constructor (props) {
     super(props)
-    // 当组件的state或者props发生改变的的时候，render函数就是重新执行
-    this.state = {
-      inputValue: '',
-      list: []
-    }
-    // 将this指向放在constructor中执行，在复杂的组件开发中节约性能
+    this.state = store.getState()
+    console.log(this.state )
     this.handleInputChange = this.handleInputChange.bind(this)
-    this.handleBtnChange = this.handleBtnChange.bind(this)
-    this.handleItemDelete = this.handleItemDelete.bind(this)
+    this.handleStoreChange = this.handleStoreChange.bind(this)
+    this.handleBtnClick = this.handleBtnClick.bind(this)
+    store.subscribe(this.handleStoreChange)
   }
 
   render () {
     return (
-      <Fragment>
+      <div style={{marginTop: '10px', marginLeft: '10px'}}>
         <div>
-          <label
-            htmlFor="insertArea"
-          >
-            输入内容：
-          </label>
-          <input
-            id="insertArea"
-            className='input'
-            value={this.state.inputValue}
+          <Input
+            value={this.state.inputValue}  
+            placeholder='todo info' 
+            style={{width: '300px', marginRight: '10px'}} 
             onChange={this.handleInputChange}
           />
-          <button onClick={this.handleBtnChange}>提交</button>
+          <Button type="primary" onClick={this.handleBtnClick}>提交</Button>
         </div>
-        <ul>
-          {/* 如果JSX里包含逻辑代码例如map可以将其抽离出来成为一个函数 */}
-          { this.getTodoItem() }
-        </ul>
-      </Fragment>
+        <List
+          style={{marginTop: '10px', width: '300px'}}
+          bordered
+          dataSource={this.state.list}
+          renderItem={item => (<List.Item>{item}</List.Item>)}
+        />
+      </div>
     )
   }
 
-  getTodoItem () {
-    return this.state.list.map((item, index) => {
-      return (
-        <TodoItem
-          key={item}
-          content={item}
-          index={index}
-          deleteItem={this.handleItemDelete}
-        />
-      )
-    })
-  }
-
   handleInputChange (e) {
-    // react新版本写法,异步获取inputValue数据需要const单独声明
-    const value= e.target.value
-    this.setState(() => {
-      return {
-        inputValue: value
-      }
-    })
-    // react旧版本写法
-    // this.setState({
-    //   inputValue: e.target.value
-    // })
+    const action = {
+      type: 'change_input_value',
+      value: e.target.value
+    }
+    console.log(e.target.value)
+    store.dispatch(action)
   }
 
-  handleBtnChange () {
-    // prevState:修改数据之前的那一个数据是怎样的,等价于 this.props
-    this.setState((prevState) => {
-      return {
-        list: [...prevState.list, prevState.inputValue],
-        inputValue: ''
-      }
-    })
-    // this.setState({
-    //   list: [...this.state.list, this.state.inputValue],
-    //   inputValue: ''
-    // })
+  handleStoreChange () {
+    console.log('store_change')
+    this.setState(store.getState())
   }
 
-  handleItemDelete (index) {
-    this.setState((prevState) => {
-      const list = [...prevState.list]
-      list.splice(index, 1)
-      return {
-        list
-      }
-    })
-    // immutable
-    // state 不允许我们做任何的改变
-    // const list = [...this.state.list]
-    // list.splice(index, 1)
-    // this.setState({
-    //   list: list
-    // })
+  handleBtnClick () {
+    const action = {
+      type: 'add_todo_item'
+    }
+    store.dispatch(action)
   }
 }
 
